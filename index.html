@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Marginal, Joint and Conditional probabilities</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 6px;
+            text-align: center;
+        }
+        #total-non_symptoms {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Event handler for the form submission
+            $('form').submit(function (event) {
+                event.preventDefault();
+
+                // Get the table data from the input fields
+                var tableData = {
+                    s_cold: parseInt($('#s-cold').val()),
+                    s_flu: parseInt($('#s-flu').val()),
+                    ns_cold: parseInt($('#ns-cold').val()),
+                    ns_flu: parseInt($('#ns-flu').val())
+                };
+
+                // Calculate the total values
+                var totalCold = tableData.s_cold + tableData.ns_cold;
+                var totalFlu = tableData.s_flu + tableData.ns_flu;
+                var totalSymptoms = tableData.s_cold + tableData.s_flu;
+                var totalNonSymptoms = tableData.ns_cold + tableData.ns_flu;
+                var grandTotal = totalCold + totalFlu;
+
+                // Update the total values in the HTML
+                $('#total-symptoms').text(totalSymptoms);
+                $('#total-non_symptoms').text(totalNonSymptoms);
+                $('#total-cold').text(totalCold);
+                $('#total-flu').text(totalFlu);
+                $('#grand-total').text(grandTotal);
+
+                // Calculate the probabilities
+                var p_s_cold = tableData.s_cold / grandTotal;
+                var p_s_flu = tableData.s_flu / grandTotal;
+                var p_s = totalSymptoms / grandTotal;
+                var p_ns_cold = tableData.ns_cold / grandTotal;
+                var p_ns_flu = tableData.ns_flu / grandTotal;
+                var p_ns = totalNonSymptoms / grandTotal;
+                var p_cold = totalCold / grandTotal;
+                var p_flu = totalFlu / grandTotal;
+                var p_total = grandTotal / grandTotal;
+
+                // Update the joint and marginal probabilities in the HTML
+                $('#p-s-cold').text(p_s_cold.toFixed(4)); // Display with 4 decimal places
+                $('#p-s-flu').text(p_s_flu.toFixed(4)); // Display with 4 decimal places
+                $('#p-ns-cold').text(p_ns_cold.toFixed(4)); // Display with 4 decimal places
+                $('#p-ns-flu').text(p_ns_flu.toFixed(4)); // Display with 4 decimal places
+                $('#p-s').text(p_s.toFixed(4));
+                $('#p-ns').text(p_ns.toFixed(4));
+                $('#p-cold').text(p_cold.toFixed(4));
+                $('#p-flu').text(p_flu.toFixed(4));
+                $('#p-total').text(p_total.toFixed(4));
+
+                // Calculate the likelihoods and posteriors
+                var likelihoodSymptomsGivenCold = p_s_cold / p_cold;
+                var likelihoodNoSymptomsGivenCold = p_ns_cold / p_cold;
+                var likelihoodSymptomsGivenFlu = p_s_flu / p_flu;
+                var likelihoodNoSymptomsGivenFlu = p_ns_flu / p_flu;
+
+                var posteriorColdGivenS = p_s_cold / p_s;
+                var posteriorColdGivenNS = p_ns_cold / p_ns;
+                var posteriorFluGivenS = p_s_flu / p_s;
+                var posteriorFluGivenNS = p_ns_flu / p_ns;
+
+                var posteriorColdGivenS2 = (likelihoodSymptomsGivenCold * p_cold) / p_s;
+                var posteriorColdGivenNS2 = (likelihoodNoSymptomsGivenCold * p_cold) / p_ns;
+                var posteriorFluGivenS2 = (likelihoodSymptomsGivenFlu * p_flu) / p_s;
+                var posteriorFluGivenNS2 = (likelihoodNoSymptomsGivenFlu * p_flu) / p_ns;
+
+                // Update the likelihoods and posteriors in the HTML
+                $('#likelihood-s-given-cold').text(likelihoodSymptomsGivenCold.toFixed(4));
+                $('#likelihood-ns-given-cold').text(likelihoodNoSymptomsGivenCold.toFixed(4));
+                $('#likelihood-s-given-flu').text(likelihoodSymptomsGivenFlu.toFixed(4));
+                $('#likelihood-ns-given-flu').text(likelihoodNoSymptomsGivenFlu.toFixed(4));
+
+                $('#posterior-cold-given-s').text(posteriorColdGivenS.toFixed(4));
+                $('#posterior-cold-given-ns').text(posteriorColdGivenNS.toFixed(4));
+                $('#posterior-flu-given-s').text(posteriorFluGivenS.toFixed(4));
+                $('#posterior-flu-given-ns').text(posteriorFluGivenNS.toFixed(4));
+
+                $('#posterior-cold-given-s2').text(posteriorColdGivenS2.toFixed(4));
+                $('#posterior-cold-given-ns2').text(posteriorColdGivenNS2.toFixed(4));
+                $('#posterior-flu-given-s2').text(posteriorFluGivenS2.toFixed(4));
+                $('#posterior-flu-given-ns2').text(posteriorFluGivenNS2.toFixed(4));
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Contigency Table (Counts of Events)</h1>
+    <form>
+        <table>
+            <tr>
+                <td></td>
+                <th>Diagnosis</th>
+                <th>Cold</th>
+                <th>Flu</th>
+                <th>Total</th>
+            </tr>
+            <tr>
+                <th rowspan="2">Symptoms</th>
+                <th>S</th>
+                <td><input type="number" id="s-cold" min="0" value="3"></td>
+                <td><input type="number" id="s-flu" min="0" value="5"></td>
+                <td><span id="total-symptoms"></span></td>
+            </tr>
+            <tr>
+                <th>NS</th>
+                <td><input type="number" id="ns-cold" min="0" value="7"></td>
+                <td><input type="number" id="ns-flu" min="0" value="9"></td>
+                <td><span id="total-non_symptoms"></span></td>
+            </tr>
+            <th colspan="2">Total</th>
+            <td><span id="total-cold"></span></td>
+            <td><span id="total-flu"></span></td>
+            <td><span id="grand-total"></span></td>
+        </table>
+        <br>
+        <input type="submit" value="Calculate">
+    </form>
+    <br>
+    <br>
+    <h2>Joint and Marginal Probabilities</h2>
+    <table>
+        <tr>
+            <th rowspan="2"></th>
+            <th rowspan="2">Cold</th>
+            <th rowspan="2">Flu</th>
+            <th rowspan="2">Total</th>
+        </tr>
+        <tr></tr>
+        <tr>
+            <th>S</th>
+            <td id="p-s-cold"></td>
+            <td id="p-s-flu"></td>
+            <td id="p-s"></td>
+        </tr>
+        <tr>
+            <th>NS</th>
+            <td id="p-ns-cold"></td>
+            <td id="p-ns-flu"></td>
+            <td id="p-ns"></td>
+        </tr>
+        <tr>
+            <th>Total</th>
+            <td id="p-cold"></td>
+            <td id="p-flu"></td>
+            <td id="p-total"></td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <h2>Conditional Probabilities</h2>
+    <table>
+        <tr>
+            <th colspan="2">Likelihood</th>
+            <th colspan="2">Posterior</th>
+            <th colspan="2">(Likelihood X Prior) / Total Evidence</th>
+        </tr>
+        <tr>
+            <th>P(S | Cold)</th>
+            <td id="likelihood-s-given-cold"></td>
+            <th>P(Cold | S)</th>
+            <td id="posterior-cold-given-s"></td>
+            <th>P(S | Cold) x P(Cold)/P(S)</th>
+            <td id="posterior-cold-given-s2"></td>
+        </tr>
+        <tr>
+            <th>P(NS | Cold)</th>
+            <td id="likelihood-ns-given-cold"></td>
+            <th>P(Cold | NS)</th>
+            <td id="posterior-cold-given-ns"></td>
+            <th>P(NS | Cold) x P(Cold)/P(NS)</th>
+            <td id="posterior-cold-given-ns2"></td>
+        </tr>
+        <tr>
+            <th>P(S | Flu)</th>
+            <td id="likelihood-s-given-flu"></td>
+            <th>P(Flu | S)</th>
+            <td id="posterior-flu-given-s"></td>
+            <th>P(S | Flu) x P(Flu)/P(S)</th>
+            <td id="posterior-flu-given-s2"></td>
+        </tr>
+        <tr>
+            <th>P(NS | Flu)</th>
+            <td id="likelihood-ns-given-flu"></td>
+            <th>P(Flu | NS)</th>
+            <td id="posterior-flu-given-ns"></td>
+            <th>P(NS | Flu) x P(Flu)/P(NS)</th>
+            <td id="posterior-flu-given-ns2"></td>
+        </tr>
+    </table>
+</body>
+</html>
